@@ -10,9 +10,9 @@ services:
       MYSQL_DATABASE: $DB_NAME
       MYSQL_USER: $DB_USER
       MYSQL_PASSWORD: $DB_PASSWORD
-#    volumes:
+    volumes:
 #      - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
-#      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
+      - ~/.wordpress/mariadb/data:/var/lib/mysql # I want to manage volumes manually.
 
   php:
     image: wodby/wordpress-php:$PHP_TAG
@@ -38,6 +38,14 @@ services:
 #      - docker-sync:/var/www/html # Docker-sync
 ## For Xdebug profiler files
 #      - files:/mnt/files
+    user: root
+    command: "php-fpm -R"
+    environment:
+      PHP_FPM_USER: root
+      PHP_FPM_GROUP: root
+
+
+
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
@@ -116,9 +124,9 @@ services:
 #      - 'traefik.port=6081'
 #      - 'traefik.frontend.rule=Host:varnish.${PROJECT_BASE_URL}'
 
-#  redis:
-#    container_name: "${PROJECT_NAME}_redis"
-#    image: wodby/redis:$REDIS_TAG
+  redis:
+    container_name: "${PROJECT_NAME}_redis"
+    image: wodby/redis:$REDIS_TAG
 
 #  adminer:
 #    container_name: "${PROJECT_NAME}_adminer"
@@ -145,19 +153,19 @@ services:
 #    volumes:
 #      - files:/mnt/files
 
-#  pma:
-#    image: phpmyadmin/phpmyadmin
-#    container_name: "${PROJECT_NAME}_pma"
-#    environment:
-#      PMA_HOST: $DB_HOST
-#      PMA_USER: $DB_USER
-#      PMA_PASSWORD: $DB_PASSWORD
-#      PHP_UPLOAD_MAX_FILESIZE: 1G
-#      PHP_MAX_INPUT_VARS: 1G
-#    labels:
-#      - 'traefik.backend=pma'
-#      - 'traefik.port=80'
-#      - 'traefik.frontend.rule=Host:pma.${PROJECT_BASE_URL}'
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: "${PROJECT_NAME}_pma"
+    environment:
+      PMA_HOST: $DB_HOST
+      PMA_USER: $DB_USER
+      PMA_PASSWORD: $DB_PASSWORD
+      PHP_UPLOAD_MAX_FILESIZE: 1G
+      PHP_MAX_INPUT_VARS: 1G
+    labels:
+      - 'traefik.backend=pma'
+      - 'traefik.port=80'
+      - 'traefik.frontend.rule=Host:pma.${PROJECT_BASE_URL}'
 
 #  athenapdf:
 #    image: arachnysdocker/athenapdf-service:$ATHENAPDF_TAG
